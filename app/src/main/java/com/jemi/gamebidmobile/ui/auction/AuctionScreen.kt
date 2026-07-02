@@ -9,9 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jemi.gamebidmobile.viewmodel.AuctionViewModel
-
+import androidx.compose.foundation.clickable
+import androidx.navigation.NavController
 @Composable
 fun AuctionScreen(
+    navController: NavController,
     viewModel: AuctionViewModel = viewModel()
 ) {
     LaunchedEffect(Unit) {
@@ -26,7 +28,13 @@ fun AuctionScreen(
         items(viewModel.auctions) { auction ->
 
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(
+                            "auction_detail/${auction.id}"
+                        )
+                    },
                 elevation = CardDefaults.cardElevation(6.dp)
             ) {
                 Column(

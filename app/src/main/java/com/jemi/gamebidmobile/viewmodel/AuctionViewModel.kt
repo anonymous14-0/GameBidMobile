@@ -15,7 +15,28 @@ class AuctionViewModel : ViewModel() {
 
     var auctions by mutableStateOf<List<AuctionModel>>(emptyList())
         private set
+    var bidMessage by mutableStateOf("")
+        private set
 
+    fun submitBid(
+        token: String,
+        auctionId: Int,
+        bidAmount: Int
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.submitBid(
+                    token,
+                    auctionId,
+                    bidAmount
+                )
+                loadAuctions() // refresh data
+                bidMessage = "Bid berhasil"
+            } catch (e: Exception) {
+                bidMessage = "Bid gagal: ${e.message}"
+            }
+        }
+    }
     fun loadAuctions() {
         viewModelScope.launch {
             auctions = repository

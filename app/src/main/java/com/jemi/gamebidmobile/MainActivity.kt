@@ -3,19 +3,54 @@ package com.jemi.gamebidmobile
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import com.jemi.gamebidmobile.ui.auction.AuctionScreen
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.delay
+
+import com.jemi.gamebidmobile.data.local.TokenManager
+import com.jemi.gamebidmobile.navigation.AppState
+import com.jemi.gamebidmobile.ui.auth.LoginScreen
+import com.jemi.gamebidmobile.ui.dashboard.DashboardScreen
+import com.jemi.gamebidmobile.ui.splash.SplashScreen
 import com.jemi.gamebidmobile.ui.theme.GameBidMobileTheme
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
         setContent {
             GameBidMobileTheme {
-                AuctionScreen()
+
+                val context = LocalContext.current
+                val tokenManager = remember {
+                    TokenManager(context)
+                }
+
+                var appState by remember {
+                    mutableStateOf<AppState>(AppState.Splash)
+                }
+
+                LaunchedEffect(Unit) {
+                    delay(2000)
+
+                    val token = tokenManager.getToken()
+
+                    appState =
+                        if (token != null)
+                            AppState.Dashboard
+                        else
+                            AppState.Login
+                }
+
+                when (appState) {
+                    AppState.Splash -> SplashScreen()
+                    AppState.Login -> LoginScreen(
+                        onLoginSuccess = {
+                            appState = AppState.Dashboard
+                        }
+                    )
+                    AppState.Dashboard -> DashboardScreen()
+                }
             }
         }
     }
