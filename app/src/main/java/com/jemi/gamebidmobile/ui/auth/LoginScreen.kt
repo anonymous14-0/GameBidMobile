@@ -28,6 +28,7 @@ fun LoginScreen(
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
             tokenManager.saveToken(viewModel.token)
+            tokenManager.saveRole(viewModel.role)
         }
     }
 

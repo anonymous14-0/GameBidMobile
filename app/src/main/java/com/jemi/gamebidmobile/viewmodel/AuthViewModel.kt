@@ -23,6 +23,8 @@ class AuthViewModel : ViewModel() {
 
     var isLoading by mutableStateOf(false)
         private set
+    var role by mutableStateOf("")
+        private set
 
     fun login(
         email: String,
@@ -40,7 +42,7 @@ class AuthViewModel : ViewModel() {
                 loginMessage = response.message
                 loginSuccess = response.status
                 token = response.token
-
+                role = response.user.role
             } catch (e: Exception) {
                 loginMessage = e.message ?: "Login gagal"
                 loginSuccess = false

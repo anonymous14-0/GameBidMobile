@@ -20,9 +20,19 @@ class TokenManager(context: Context) {
         return prefs.getString("token", null)
     }
 
-    fun clearToken() {
+    fun saveRole(role: String) {
         prefs.edit()
-            .remove("token")
+            .putString("role", role)
+            .apply()
+    }
+
+    fun getRole(): String? {
+        return prefs.getString("role", null)
+    }
+
+    fun clearAll() {
+        prefs.edit()
+            .clear()
             .apply()
     }
 }

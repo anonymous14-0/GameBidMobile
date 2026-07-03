@@ -10,7 +10,7 @@ import com.jemi.gamebidmobile.ui.transaction.TransactionScreen
 import com.jemi.gamebidmobile.ui.auction.AuctionDetailScreen
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
-
+import com.jemi.gamebidmobile.ui.transaction.TransactionDetailScreen
 @Composable
 fun DashboardScreen() {
 
@@ -61,7 +61,7 @@ fun DashboardScreen() {
             }
 
             composable(Screen.Transaction.route) {
-                TransactionScreen()
+                TransactionScreen(navController)
             }
 
             composable(Screen.Profile.route) {
@@ -77,6 +77,17 @@ fun DashboardScreen() {
                         ?.toIntOrNull() ?: 0
 
                 AuctionDetailScreen(auctionId)
+            }
+            composable(
+                route = Screen.TransactionDetail.route
+            ) { backStackEntry ->
+
+                val transactionId =
+                    backStackEntry.arguments
+                        ?.getString("transactionId")
+                        ?.toIntOrNull() ?: 0
+
+                TransactionDetailScreen(transactionId)
             }
         }
     }
