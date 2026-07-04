@@ -6,11 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
-
 import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.navigation.AppState
 import com.jemi.gamebidmobile.ui.auth.LoginScreen
-import com.jemi.gamebidmobile.ui.dashboard.DashboardScreen
+import com.jemi.gamebidmobile.ui.dashboard.BuyerDashboardScreen
+import com.jemi.gamebidmobile.ui.dashboard.SellerDashboardScreen
 import com.jemi.gamebidmobile.ui.splash.SplashScreen
 import com.jemi.gamebidmobile.ui.theme.GameBidMobileTheme
 
@@ -34,22 +34,35 @@ class MainActivity : ComponentActivity() {
                     delay(2000)
 
                     val token = tokenManager.getToken()
+                    val role = tokenManager.getRole()
 
                     appState =
-                        if (token != null)
-                            AppState.Dashboard
-                        else
+                        if (token != null) {
+                            when (role) {
+                                "penjual" -> AppState.SellerDashboard
+                                else -> AppState.BuyerDashboard
+                            }
+                        } else {
                             AppState.Login
+                        }
                 }
 
                 when (appState) {
                     AppState.Splash -> SplashScreen()
+
                     AppState.Login -> LoginScreen(
                         onLoginSuccess = {
-                            appState = AppState.Dashboard
+                            val role = tokenManager.getRole()
+
+                            appState = when (role) {
+                                "penjual" -> AppState.SellerDashboard
+                                else -> AppState.BuyerDashboard
+                            }
                         }
                     )
-                    AppState.Dashboard -> DashboardScreen()
+
+                    AppState.BuyerDashboard -> BuyerDashboardScreen()
+                    AppState.SellerDashboard -> SellerDashboardScreen()
                 }
             }
         }

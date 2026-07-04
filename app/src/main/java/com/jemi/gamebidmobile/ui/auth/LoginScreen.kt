@@ -29,14 +29,10 @@ fun LoginScreen(
         if (viewModel.loginSuccess) {
             tokenManager.saveToken(viewModel.token)
             tokenManager.saveRole(viewModel.role)
-        }
-    }
-
-    LaunchedEffect(viewModel.loginSuccess) {
-        if (viewModel.loginSuccess) {
             onLoginSuccess()
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

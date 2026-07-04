@@ -33,6 +33,7 @@ class TransactionViewModel : ViewModel() {
                     imagePart
                 )
                 uploadMessage = "Upload berhasil"
+                loadTransactionDetail(token, transactionId)
             } catch (e: Exception) {
                 uploadMessage = "Upload gagal: ${e.message}"
             }
@@ -63,6 +64,7 @@ class TransactionViewModel : ViewModel() {
                     note
                 )
                 accountMessage = "Akun berhasil dikirim"
+                loadTransactionDetail(token, transactionId)
             } catch (e: Exception) {
                 accountMessage =
                     "Gagal kirim akun: ${e.message}"

@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import com.jemi.gamebidmobile.ui.transaction.TransactionDetailScreen
 @Composable
-fun DashboardScreen() {
+fun BuyerDashboardScreen() {
 
     val navController = rememberNavController()
 
