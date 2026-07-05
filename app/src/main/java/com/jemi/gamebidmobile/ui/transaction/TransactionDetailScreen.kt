@@ -16,6 +16,9 @@ import com.jemi.gamebidmobile.utils.uriToFile
 import com.jemi.gamebidmobile.viewmodel.TransactionViewModel
 import com.jemi.gamebidmobile.ui.components.TransactionStatusBadge
 import com.jemi.gamebidmobile.ui.components.formatRupiah
+import com.jemi.gamebidmobile.ui.components.ConfirmActionDialog
+import com.jemi.gamebidmobile.ui.components.LoadingButtonContent
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -41,6 +44,14 @@ fun TransactionDetailScreen(
     var accountEmail by remember { mutableStateOf("") }
     var accountPassword by remember { mutableStateOf("") }
     var sellerNote by remember { mutableStateOf("") }
+    var showCompleteDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(viewModel.uploadMessage, viewModel.accountMessage) {
+        val message = viewModel.uploadMessage.ifEmpty { viewModel.accountMessage }
+        if (message.isNotEmpty()) snackbarHostState.showSnackbar(message)
+    }
 
     val transaction = viewModel.selectedTransaction
     val transactionStatus = transaction?.status ?: "loading"
@@ -53,15 +64,17 @@ fun TransactionDetailScreen(
         }
 
     if (transaction == null) {
-        Box(Modifier.fillMaxSize()) {
-            Text("Loading...")
+        Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            CircularProgressIndicator()
         }
         return
     }
 
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(innerPadding)
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -141,8 +154,11 @@ fun TransactionDetailScreen(
 
                     Button(
                         modifier = Modifier.fillMaxWidth(),
+                        enabled = !viewModel.isActionLoading,
                         onClick = {
-                            if (selectedUri != null && token != null) {
+                            if (selectedUri == null || token == null) {
+                                scope.launch { snackbarHostState.showSnackbar("Pilih bukti transfer terlebih dahulu") }
+                            } else {
 
                                 val file = uriToFile(
                                     context,
@@ -169,7 +185,7 @@ fun TransactionDetailScreen(
                             }
                         }
                     ) {
-                        Text("Upload Bukti Transfer")
+                        LoadingButtonContent("Upload Bukti Transfer", viewModel.isActionLoading)
                     }
 
                 } else {
@@ -203,12 +219,11 @@ fun TransactionDetailScreen(
 
                     Button(
                         modifier = Modifier.fillMaxWidth(),
+                        enabled = !viewModel.isActionLoading,
                         onClick = {
-                            if (
-                                token != null &&
-                                accountEmail.isNotEmpty() &&
-                                accountPassword.isNotEmpty()
-                            ) {
+                            if (token == null || accountEmail.isEmpty() || accountPassword.isEmpty()) {
+                                scope.launch { snackbarHostState.showSnackbar("Lengkapi email dan password akun") }
+                            } else {
                                 viewModel.sendAccount(
                                     token,
                                     transactionId,
@@ -219,7 +234,7 @@ fun TransactionDetailScreen(
                             }
                         }
                     ) {
-                        Text("Kirim Akun")
+                        LoadingButtonContent("Kirim Akun", viewModel.isActionLoading)
                     }
 
                 } else {
@@ -253,16 +268,10 @@ fun TransactionDetailScreen(
 
                     Button(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            if (token != null) {
-                                viewModel.completeTransaction(
-                                    token,
-                                    transactionId
-                                )
-                            }
-                        }
+                        enabled = !viewModel.isActionLoading,
+                        onClick = { showCompleteDialog = true }
                     ) {
-                        Text("Selesaikan Transaksi")
+                        LoadingButtonContent("Selesaikan Transaksi", viewModel.isActionLoading)
                     }
 
                 } else {
@@ -282,12 +291,19 @@ fun TransactionDetailScreen(
             }
         }
 
-        if (viewModel.uploadMessage.isNotEmpty()) {
-            Text(viewModel.uploadMessage)
-        }
+    }
+    }
 
-        if (viewModel.accountMessage.isNotEmpty()) {
-            Text(viewModel.accountMessage)
-        }
+    if (showCompleteDialog) {
+        ConfirmActionDialog(
+            title = "Selesaikan Transaksi",
+            message = "Pastikan akun sudah diterima dan dapat digunakan sebelum menyelesaikan transaksi.",
+            confirmText = "Selesaikan",
+            onConfirm = {
+                showCompleteDialog = false
+                if (token != null) viewModel.completeTransaction(token, transactionId)
+            },
+            onDismiss = { showCompleteDialog = false }
+        )
     }
 }

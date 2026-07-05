@@ -37,6 +37,7 @@ fun CreateAuctionScreen(
     var startTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
     var localMessage by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         if (token != null) {
@@ -44,7 +45,9 @@ fun CreateAuctionScreen(
         }
     }
 
-    LaunchedEffect(viewModel.createMessage) {
+    LaunchedEffect(localMessage, viewModel.createMessage) {
+        val message = localMessage.ifEmpty { viewModel.createMessage }
+        if (message.isNotEmpty()) snackbarHostState.showSnackbar(message)
         if (viewModel.createMessage == "Auction berhasil dibuat") {
             selectedItemId = 0
             selectedItemTitle = ""
@@ -53,10 +56,13 @@ fun CreateAuctionScreen(
         }
     }
 
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(innerPadding)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
         Text(
@@ -173,7 +179,8 @@ fun CreateAuctionScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    enabled = !viewModel.isLoading,
                     onClick = {
                         localMessage = ""
 
@@ -195,26 +202,12 @@ fun CreateAuctionScreen(
                         }
                     }
                 ) {
-                    Text("Buat Auction")
+                    com.jemi.gamebidmobile.ui.components.LoadingButtonContent("Buat Auction", viewModel.isLoading)
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (localMessage.isNotEmpty()) {
-            Text(
-                text = localMessage,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-
-        if (viewModel.createMessage.isNotEmpty()) {
-            Text(
-                text = viewModel.createMessage,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+    }
     }
 }
 

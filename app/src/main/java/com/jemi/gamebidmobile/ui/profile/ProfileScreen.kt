@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.viewmodel.ProfileViewModel
+import com.jemi.gamebidmobile.ui.components.ConfirmActionDialog
 
 @Composable
 fun ProfileScreen(
@@ -43,9 +44,17 @@ fun ProfileScreen(
     var showLogoutDialog by remember {
         mutableStateOf(false)
     }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel.errorMessage) {
+        if (viewModel.errorMessage.isNotEmpty()) snackbarHostState.showSnackbar(viewModel.errorMessage)
+    }
+
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(innerPadding)
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -113,43 +122,18 @@ fun ProfileScreen(
             Text("Logout")
         }
         if (showLogoutDialog) {
-            AlertDialog(
-                onDismissRequest = {
-                    showLogoutDialog = false
+            ConfirmActionDialog(
+                title = "Logout",
+                message = "Anda yakin ingin keluar dari akun GameBid?",
+                confirmText = "Logout",
+                isDestructive = true,
+                onConfirm = {
+                    tokenManager.clearToken()
+                    onLogout()
                 },
-                title = {
-                    Text("Logout")
-                },
-                text = {
-                    Text("Yakin ingin logout?")
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            tokenManager.clearToken()
-                            onLogout()
-                        }
-                    ) {
-                        Text("Logout")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            showLogoutDialog = false
-                        }
-                    ) {
-                        Text("Batal")
-                    }
-                }
+                onDismiss = { showLogoutDialog = false }
             )
         }
-        if (viewModel.errorMessage.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = viewModel.errorMessage,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
+    }
     }
 }

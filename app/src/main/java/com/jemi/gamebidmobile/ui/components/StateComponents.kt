@@ -17,6 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -161,5 +164,64 @@ private fun ModernStateCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ConfirmActionDialog(
+    title: String,
+    message: String,
+    confirmText: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isDestructive: Boolean = false
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF6B7280)
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = if (isDestructive) {
+                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                } else {
+                    ButtonDefaults.buttonColors()
+                }
+            ) {
+                Text(confirmText)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Batal")
+            }
+        }
+    )
+}
+
+@Composable
+fun LoadingButtonContent(text: String, isLoading: Boolean) {
+    if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(20.dp),
+            strokeWidth = 2.dp,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    } else {
+        Text(text)
     }
 }
