@@ -1,3 +1,10 @@
+/*
+ * File: Theme.kt
+ * Fungsi: Layer UI Jetpack Compose. File ini membangun tampilan, membaca state dari ViewModel, dan mengirim event pengguna ke alur UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ * Peran arsitektur: menjaga pemisahan tanggung jawab antar layer sehingga kode UI, state, penyimpanan lokal, dan komunikasi API tetap mudah dijelaskan saat skripsi/presentasi.
+ * Keterkaitan API: bila file ini tidak memanggil API secara langsung, data tetap mengalir melalui chain UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ */
+
 package com.jemi.gamebidmobile.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -55,6 +62,8 @@ private val LightColorScheme = lightColorScheme(
     inversePrimary = SecondaryPurple
 )
 
+// Composable ini membangun bagian UI GameBidMobileTheme.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun GameBidMobileTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

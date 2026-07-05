@@ -1,3 +1,10 @@
+/*
+ * File: StateComponents.kt
+ * Fungsi: Layer UI Jetpack Compose. File ini membangun tampilan, membaca state dari ViewModel, dan mengirim event pengguna ke alur UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ * Peran arsitektur: menjaga pemisahan tanggung jawab antar layer sehingga kode UI, state, penyimpanan lokal, dan komunikasi API tetap mudah dijelaskan saat skripsi/presentasi.
+ * Keterkaitan API: bila file ini tidak memanggil API secara langsung, data tetap mengalir melalui chain UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ */
+
 package com.jemi.gamebidmobile.ui.components
 
 import androidx.compose.foundation.background
@@ -36,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+// Composable ini membangun bagian UI EmptyState.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun EmptyState(
     title: String,
@@ -56,6 +65,8 @@ fun EmptyState(
     )
 }
 
+// Composable ini membangun bagian UI ErrorState.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun ErrorState(
     title: String = "Data gagal dimuat",
@@ -76,6 +87,8 @@ fun ErrorState(
     )
 }
 
+// Composable ini membangun bagian UI ModernStateCard.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 private fun ModernStateCard(
     icon: ImageVector,
@@ -166,6 +179,8 @@ private fun ModernStateCard(
     }
 }
 
+// Composable ini membangun bagian UI ConfirmActionDialog.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun ConfirmActionDialog(
     title: String,
@@ -212,6 +227,8 @@ fun ConfirmActionDialog(
     )
 }
 
+// Composable ini membangun bagian UI LoadingButtonContent.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun LoadingButtonContent(text: String, isLoading: Boolean) {
     if (isLoading) {

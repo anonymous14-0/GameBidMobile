@@ -1,3 +1,10 @@
+/*
+ * File: SplashScreen.kt
+ * Fungsi: Layer UI Jetpack Compose. File ini membangun tampilan, membaca state dari ViewModel, dan mengirim event pengguna ke alur UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ * Peran arsitektur: menjaga pemisahan tanggung jawab antar layer sehingga kode UI, state, penyimpanan lokal, dan komunikasi API tetap mudah dijelaskan saat skripsi/presentasi.
+ * Keterkaitan API: bila file ini tidak memanggil API secara langsung, data tetap mengalir melalui chain UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ */
+
 package com.jemi.gamebidmobile.ui.splash
 
 import androidx.compose.animation.AnimatedVisibility
@@ -48,8 +55,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Composable ini membangun bagian UI SplashScreen.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun SplashScreen() {
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     var isVisible by remember { mutableStateOf(false) }
     val infiniteTransition = rememberInfiniteTransition(label = "splash_animation")
 
@@ -157,6 +167,8 @@ fun SplashScreen() {
     }
 }
 
+// Composable ini membangun bagian UI GameBidLogo.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 private fun GameBidLogo(
     modifier: Modifier = Modifier,
@@ -214,6 +226,8 @@ private fun GameBidLogo(
     }
 }
 
+// Composable ini membangun bagian UI PremiumLoadingIndicator.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 private fun PremiumLoadingIndicator(rotation: Float) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -241,6 +255,8 @@ private fun PremiumLoadingIndicator(rotation: Float) {
     }
 }
 
+// Composable ini membangun bagian UI DecorativeGradientOrbs.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 private fun DecorativeGradientOrbs(glowAlpha: Float) {
     Box(

@@ -1,3 +1,10 @@
+/*
+ * File: SellerDashboardScreen.kt
+ * Fungsi: Layer UI Jetpack Compose. File ini membangun tampilan, membaca state dari ViewModel, dan mengirim event pengguna ke alur UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ * Peran arsitektur: menjaga pemisahan tanggung jawab antar layer sehingga kode UI, state, penyimpanan lokal, dan komunikasi API tetap mudah dijelaskan saat skripsi/presentasi.
+ * Keterkaitan API: bila file ini tidak memanggil API secara langsung, data tetap mengalir melalui chain UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ */
+
 package com.jemi.gamebidmobile.ui.dashboard
 
 import androidx.compose.foundation.layout.Box
@@ -19,10 +26,13 @@ import com.jemi.gamebidmobile.ui.profile.ProfileScreen
 import com.jemi.gamebidmobile.ui.transaction.TransactionDetailScreen
 import com.jemi.gamebidmobile.ui.transaction.TransactionScreen
 
+// Composable ini membangun bagian UI SellerDashboardScreen.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun SellerDashboardScreen(
     onLogout: () -> Unit
 ) {
+    // State UI: NavController diingat agar navigasi antar tab/screen tetap stabil selama recomposition Compose.
     val navController = rememberNavController()
 
     var selectedIndex by remember {
@@ -148,6 +158,8 @@ fun SellerDashboardScreen(
     }
 }
 
+// Composable ini membangun bagian UI premiumNavigationBarItemColors.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 private fun premiumNavigationBarItemColors() = NavigationBarItemDefaults.colors(
     selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,

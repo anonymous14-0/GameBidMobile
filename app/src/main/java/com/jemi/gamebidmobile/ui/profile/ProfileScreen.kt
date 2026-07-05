@@ -1,3 +1,10 @@
+/*
+ * File: ProfileScreen.kt
+ * Fungsi: Layer UI Jetpack Compose. File ini membangun tampilan, membaca state dari ViewModel, dan mengirim event pengguna ke alur UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ * Peran arsitektur: menjaga pemisahan tanggung jawab antar layer sehingga kode UI, state, penyimpanan lokal, dan komunikasi API tetap mudah dijelaskan saat skripsi/presentasi.
+ * Keterkaitan API: bila file ini tidak memanggil API secara langsung, data tetap mengalir melalui chain UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ */
+
 package com.jemi.gamebidmobile.ui.profile
 
 import androidx.compose.foundation.background
@@ -17,6 +24,8 @@ import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.viewmodel.ProfileViewModel
 import com.jemi.gamebidmobile.ui.components.ConfirmActionDialog
 
+// Composable ini membangun bagian UI ProfileScreen.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun ProfileScreen(
     onLogout: () -> Unit,
@@ -24,6 +33,7 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
 
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     val tokenManager = remember {
         TokenManager(context)
     }
@@ -43,6 +53,7 @@ fun ProfileScreen(
     var showLogoutDialog by remember {
         mutableStateOf(false)
     }
+    // State UI: SnackbarHostState menampung antrean pesan validasi/sukses dari ViewModel agar feedback tampil konsisten.
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel.errorMessage) {

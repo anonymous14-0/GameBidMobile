@@ -1,3 +1,10 @@
+/*
+ * File: AuctionScreen.kt
+ * Fungsi: Layer UI Jetpack Compose. File ini membangun tampilan, membaca state dari ViewModel, dan mengirim event pengguna ke alur UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ * Peran arsitektur: menjaga pemisahan tanggung jawab antar layer sehingga kode UI, state, penyimpanan lokal, dan komunikasi API tetap mudah dijelaskan saat skripsi/presentasi.
+ * Keterkaitan API: bila file ini tidak memanggil API secara langsung, data tetap mengalir melalui chain UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ */
+
 package com.jemi.gamebidmobile.ui.auction
 
 import androidx.compose.foundation.clickable
@@ -26,6 +33,8 @@ import com.jemi.gamebidmobile.ui.components.formatRupiah
 import com.jemi.gamebidmobile.viewmodel.AuctionViewModel
 import kotlinx.coroutines.delay
 
+// Composable ini membangun bagian UI AuctionScreen.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun AuctionScreen(
     navController: NavController,
