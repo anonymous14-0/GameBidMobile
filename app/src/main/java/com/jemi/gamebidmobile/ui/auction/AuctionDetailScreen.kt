@@ -17,6 +17,9 @@ import com.jemi.gamebidmobile.ui.components.calculateRemainingTime
 import com.jemi.gamebidmobile.ui.components.formatRupiah
 import com.jemi.gamebidmobile.ui.components.StatusBadge
 import com.jemi.gamebidmobile.ui.components.ErrorState
+import com.jemi.gamebidmobile.ui.components.ConfirmActionDialog
+import com.jemi.gamebidmobile.ui.components.LoadingButtonContent
+import kotlinx.coroutines.launch
 
 @Composable
 fun AuctionDetailScreen(
@@ -30,6 +33,9 @@ fun AuctionDetailScreen(
     var remainingTime by remember {
         mutableStateOf("")
     }
+    var showBidDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
 
@@ -41,6 +47,12 @@ fun AuctionDetailScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadAuctionDetail(auctionId)
+    }
+
+    LaunchedEffect(viewModel.bidMessage) {
+        if (viewModel.bidMessage.isNotEmpty()) {
+            snackbarHostState.showSnackbar(viewModel.bidMessage)
+        }
     }
 
     val auction = viewModel.selectedAuction
@@ -73,10 +85,15 @@ fun AuctionDetailScreen(
         }
     }
 
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(innerPadding)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
         auction.item.image?.let { imagePath ->
@@ -141,25 +158,34 @@ fun AuctionDetailScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            enabled = !viewModel.isSubmittingBid,
             onClick = {
-                if (
-                    token != null &&
-                    bidAmount.isNotEmpty()
-                ) {
-                    viewModel.submitBid(
-                        token,
-                        auctionId,
-                        bidAmount.toInt()
-                    )
+                when {
+                    token == null -> scope.launch { snackbarHostState.showSnackbar("Sesi login tidak ditemukan") }
+                    bidAmount.toIntOrNull() == null -> scope.launch { snackbarHostState.showSnackbar("Masukkan nominal bid yang valid") }
+                    else -> showBidDialog = true
                 }
             }
         ) {
-            Text("Bid Sekarang")
+            LoadingButtonContent("Bid Sekarang", viewModel.isSubmittingBid)
         }
+    }
+    }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(viewModel.bidMessage)
+    if (showBidDialog) {
+        ConfirmActionDialog(
+            title = "Konfirmasi Bid",
+            message = "Kirim bid sebesar ${formatRupiah(bidAmount.toIntOrNull() ?: 0)} untuk auction ini?",
+            confirmText = "Kirim Bid",
+            onConfirm = {
+                showBidDialog = false
+                val amount = bidAmount.toIntOrNull()
+                if (token != null && amount != null) {
+                    viewModel.submitBid(token, auctionId, amount)
+                }
+            },
+            onDismiss = { showBidDialog = false }
+        )
     }
 }

@@ -29,6 +29,9 @@ class AuctionViewModel : ViewModel() {
     var bidMessage by mutableStateOf("")
         private set
 
+    var isSubmittingBid by mutableStateOf(false)
+        private set
+
     var sellerItems by mutableStateOf<List<ItemModel>>(emptyList())
         private set
 
@@ -53,6 +56,8 @@ class AuctionViewModel : ViewModel() {
         bidAmount: Int
     ) {
         viewModelScope.launch {
+            isSubmittingBid = true
+            bidMessage = ""
             try {
                 repository.submitBid(
                     token,
@@ -65,6 +70,8 @@ class AuctionViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 bidMessage = "Bid gagal: ${e.message}"
+            } finally {
+                isSubmittingBid = false
             }
         }
     }
@@ -120,6 +127,8 @@ class AuctionViewModel : ViewModel() {
         endTime: String
     ) {
         viewModelScope.launch {
+            createMessage = ""
+            isLoading = true
             try {
                 repository.createAuction(
                     token,
@@ -133,6 +142,8 @@ class AuctionViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 createMessage = "Gagal: ${e.message}"
+            } finally {
+                isLoading = false
             }
         }
     }

@@ -56,7 +56,10 @@ fun CreateItemScreen(
             selectedImageUri = uri
         }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(viewModel.itemMessage) {
+        if (viewModel.itemMessage.isNotEmpty()) snackbarHostState.showSnackbar(viewModel.itemMessage)
         if (viewModel.itemMessage == "Item berhasil dibuat") {
             title = ""
             selectedCategoryId = 0
@@ -67,10 +70,13 @@ fun CreateItemScreen(
         }
     }
 
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(innerPadding)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
         Text(
@@ -239,13 +245,6 @@ fun CreateItemScreen(
             }
         }
 
-        if (viewModel.itemMessage.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = viewModel.itemMessage,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+    }
     }
 }

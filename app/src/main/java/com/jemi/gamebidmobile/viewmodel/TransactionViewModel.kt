@@ -23,6 +23,8 @@ class TransactionViewModel : ViewModel() {
         private set
     var selectedTransaction by mutableStateOf<TransactionModel?>(null)
         private set
+    var isActionLoading by mutableStateOf(false)
+        private set
 
     fun uploadProof(
         token: String,
@@ -30,6 +32,7 @@ class TransactionViewModel : ViewModel() {
         imagePart: MultipartBody.Part
     ) {
         viewModelScope.launch {
+            isActionLoading = true
             try {
                 repository.uploadProof(
                     token,
@@ -40,6 +43,8 @@ class TransactionViewModel : ViewModel() {
                 loadTransactionDetail(token, transactionId)
             } catch (e: Exception) {
                 uploadMessage = "Upload gagal: ${e.message}"
+            } finally {
+                isActionLoading = false
             }
         }
     }
@@ -68,6 +73,7 @@ class TransactionViewModel : ViewModel() {
         note: String
     ) {
         viewModelScope.launch {
+            isActionLoading = true
             try {
                 repository.sendAccount(
                     token,
@@ -81,6 +87,8 @@ class TransactionViewModel : ViewModel() {
             } catch (e: Exception) {
                 accountMessage =
                     "Gagal kirim akun: ${e.message}"
+            } finally {
+                isActionLoading = false
             }
         }
     }
@@ -89,6 +97,7 @@ class TransactionViewModel : ViewModel() {
         transactionId: Int
     ) {
         viewModelScope.launch {
+            isActionLoading = true
             try {
                 repository.completeTransaction(
                     token,
@@ -98,6 +107,8 @@ class TransactionViewModel : ViewModel() {
             } catch (e: Exception) {
                 uploadMessage =
                     "Gagal menyelesaikan transaksi"
+            } finally {
+                isActionLoading = false
             }
         }
     }

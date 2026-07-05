@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.jemi.gamebidmobile.viewmodel.AuthViewModel
 import com.jemi.gamebidmobile.data.local.TokenManager
+import com.jemi.gamebidmobile.ui.components.LoadingButtonContent
 
 @Composable
 fun LoginScreen(
@@ -33,6 +34,14 @@ fun LoginScreen(
         TokenManager(context)
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel.loginMessage) {
+        if (viewModel.loginMessage.isNotEmpty() && !viewModel.loginSuccess) {
+            snackbarHostState.showSnackbar(viewModel.loginMessage)
+        }
+    }
+
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
             tokenManager.saveToken(viewModel.token)
@@ -44,9 +53,11 @@ fun LoginScreen(
         }
     }
 
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(innerPadding)
             .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -126,23 +137,16 @@ fun LoginScreen(
                     onClick = {
                         viewModel.login(email, password)
                     },
+                    enabled = !viewModel.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Login")
-                }
-
-                if (viewModel.loginMessage.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = viewModel.loginMessage,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    LoadingButtonContent("Login", viewModel.isLoading)
                 }
             }
         }
+    }
     }
 }
