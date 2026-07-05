@@ -1,12 +1,15 @@
 package com.jemi.gamebidmobile.ui.auction
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.jemi.gamebidmobile.viewmodel.AuctionViewModel
@@ -20,25 +23,22 @@ import com.jemi.gamebidmobile.ui.components.ErrorState
 import com.jemi.gamebidmobile.ui.components.ConfirmActionDialog
 import com.jemi.gamebidmobile.ui.components.LoadingButtonContent
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun AuctionDetailScreen(
     auctionId: Int,
     viewModel: AuctionViewModel = viewModel()
 ) {
-    var bidAmount by remember {
-        mutableStateOf("")
-    }
-
-    var remainingTime by remember {
-        mutableStateOf("")
-    }
+    var bidAmount by remember { mutableStateOf("") }
+    var remainingTime by remember { mutableStateOf("") }
     var showBidDialog by remember { mutableStateOf(false) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
-
     val tokenManager = remember {
         TokenManager(context)
     }
@@ -51,7 +51,9 @@ fun AuctionDetailScreen(
 
     LaunchedEffect(viewModel.bidMessage) {
         if (viewModel.bidMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(viewModel.bidMessage)
+            snackbarHostState.showSnackbar(
+                viewModel.bidMessage
+            )
         }
     }
 
@@ -62,12 +64,14 @@ fun AuctionDetailScreen(
             ErrorState(
                 title = "Detail auction gagal dimuat",
                 subtitle = "Kami belum bisa menampilkan detail auction ini. Coba muat ulang halaman.",
-                onActionClick = { viewModel.loadAuctionDetail(auctionId) }
+                onActionClick = {
+                    viewModel.loadAuctionDetail(auctionId)
+                }
             )
         } else {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = androidx.compose.ui.Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
@@ -86,106 +90,135 @@ fun AuctionDetailScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        }
     ) { innerPadding ->
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
 
-        auction.item.image?.let { imagePath ->
-            AsyncImage(
-                model = "http://192.168.1.107:8000/storage/$imagePath",
-                contentDescription = auction.item.title,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()), // FIX
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            auction.item.image?.let { imagePath ->
+                AsyncImage(
+                    model = "http://192.168.1.107:8000/storage/$imagePath",
+                    contentDescription = auction.item.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                )
+            }
+
+            Text(
+                text = auction.item.title,
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            Text(
+                text = "Harga Saat Ini",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = formatRupiah(auction.current_price),
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            StatusBadge(auction.status)
+
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = "⏱ $remainingTime",
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+
+            OutlinedTextField(
+                value = bidAmount,
+                onValueChange = {
+                    bidAmount = it
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = {
+                    Text("Masukkan Bid")
+                }
+            )
+
+            Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
-                    .clip(RoundedCornerShape(20.dp))
-            )
+                    .height(52.dp),
+                enabled = !viewModel.isSubmittingBid,
+                onClick = {
+                    when {
+                        token == null -> {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "Sesi login tidak ditemukan"
+                                )
+                            }
+                        }
 
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+                        bidAmount.toIntOrNull() == null -> {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "Masukkan nominal bid yang valid"
+                                )
+                            }
+                        }
 
-        Text(
-            text = auction.item.title,
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Harga Saat Ini",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Text(
-            text = formatRupiah(auction.current_price),
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        StatusBadge(auction.status)
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            Text(
-                text = "⏱ $remainingTime",
-                modifier = Modifier.padding(12.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = bidAmount,
-            onValueChange = {
-                bidAmount = it
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text("Masukkan Bid")
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            enabled = !viewModel.isSubmittingBid,
-            onClick = {
-                when {
-                    token == null -> scope.launch { snackbarHostState.showSnackbar("Sesi login tidak ditemukan") }
-                    bidAmount.toIntOrNull() == null -> scope.launch { snackbarHostState.showSnackbar("Masukkan nominal bid yang valid") }
-                    else -> showBidDialog = true
+                        else -> {
+                            showBidDialog = true
+                        }
+                    }
                 }
+            ) {
+                LoadingButtonContent(
+                    "Bid Sekarang",
+                    viewModel.isSubmittingBid
+                )
             }
-        ) {
-            LoadingButtonContent("Bid Sekarang", viewModel.isSubmittingBid)
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
-    }
     }
 
     if (showBidDialog) {
         ConfirmActionDialog(
             title = "Konfirmasi Bid",
-            message = "Kirim bid sebesar ${formatRupiah(bidAmount.toIntOrNull() ?: 0)} untuk auction ini?",
+            message =
+                "Kirim bid sebesar ${
+                    formatRupiah(
+                        bidAmount.toIntOrNull() ?: 0
+                    )
+                } untuk auction ini?",
             confirmText = "Kirim Bid",
             onConfirm = {
                 showBidDialog = false
-                val amount = bidAmount.toIntOrNull()
+
+                val amount =
+                    bidAmount.toIntOrNull()
+
                 if (token != null && amount != null) {
-                    viewModel.submitBid(token, auctionId, amount)
+                    viewModel.submitBid(
+                        token,
+                        auctionId,
+                        amount
+                    )
                 }
             },
-            onDismiss = { showBidDialog = false }
+            onDismiss = {
+                showBidDialog = false
+            }
         )
     }
 }
