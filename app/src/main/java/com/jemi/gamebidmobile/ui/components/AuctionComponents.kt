@@ -5,7 +5,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -59,10 +58,16 @@ fun formatRupiah(value: Number): String {
 fun StatusBadge(status: String) {
     val color =
         when (status.lowercase()) {
-            "active" -> Color(0xFF4CAF50)
-            "ended" -> Color(0xFFF44336)
-            else -> Color.Gray
+            "active" -> MaterialTheme.colorScheme.tertiary
+            "ended" -> MaterialTheme.colorScheme.error
+            else -> MaterialTheme.colorScheme.surfaceVariant
         }
+
+    val contentColor = if (status.lowercase() !in listOf("active", "ended")) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.onPrimary
+    }
 
     Surface(
         color = color,
@@ -70,7 +75,7 @@ fun StatusBadge(status: String) {
     ) {
         Text(
             text = status.uppercase(),
-            color = Color.White,
+            color = contentColor,
             modifier = Modifier.padding(
                 horizontal = 12.dp,
                 vertical = 6.dp
@@ -83,12 +88,22 @@ fun StatusBadge(status: String) {
 fun TransactionStatusBadge(status: String) {
     val color = when (status.lowercase()) {
         "pending",
-        "pending_payment" -> Color(0xFFFF9800)
+        "pending_payment" -> MaterialTheme.colorScheme.secondary
         "verified",
-        "payment_verified" -> Color(0xFF2196F3)
-        "account_sent" -> Color(0xFF9C27B0)
-        "completed" -> Color(0xFF4CAF50)
-        else -> Color(0xFF6B7280)
+        "payment_verified" -> MaterialTheme.colorScheme.primary
+        "account_sent" -> MaterialTheme.colorScheme.primaryContainer
+        "completed" -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    val contentColor = when (status.lowercase()) {
+        "account_sent" -> MaterialTheme.colorScheme.onPrimaryContainer
+        "pending",
+        "pending_payment",
+        "verified",
+        "payment_verified",
+        "completed" -> MaterialTheme.colorScheme.onPrimary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     Surface(
@@ -98,7 +113,7 @@ fun TransactionStatusBadge(status: String) {
         Text(
             text = status.replace("_", " ").uppercase(),
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White,
+            color = contentColor,
             modifier = Modifier.padding(
                 horizontal = 12.dp,
                 vertical = 7.dp

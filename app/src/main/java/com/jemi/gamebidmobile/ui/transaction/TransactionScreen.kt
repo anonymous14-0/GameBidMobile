@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,12 +47,6 @@ import com.jemi.gamebidmobile.ui.components.ErrorState
 import com.jemi.gamebidmobile.ui.components.formatRupiah
 import com.jemi.gamebidmobile.viewmodel.TransactionViewModel
 
-private val ScreenBackground = Color(0xFFF6F7FB)
-private val PrimaryText = Color(0xFF111827)
-private val SecondaryText = Color(0xFF6B7280)
-private val MutedText = Color(0xFF9CA3AF)
-private val Purple = Color(0xFF7C3AED)
-private val Green = Color(0xFF059669)
 
 @Composable
 fun TransactionScreen(
@@ -70,7 +63,7 @@ fun TransactionScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = ScreenBackground
+        color = MaterialTheme.colorScheme.background
     ) {
         when {
             viewModel.isLoading -> TransactionLoadingState()
@@ -138,12 +131,12 @@ private fun TransactionHeader(totalTransactions: Int) {
             text = "Penjualan Seller",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold,
-            color = PrimaryText
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = "$totalTransactions transaksi penjualan terbaru",
             style = MaterialTheme.typography.bodyMedium,
-            color = SecondaryText
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -158,7 +151,7 @@ private fun TransactionCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -178,13 +171,13 @@ private fun TransactionCard(
                         text = "Transaction ID",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
-                        color = MutedText
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "#${transaction.id}",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
-                        color = PrimaryText
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -203,13 +196,13 @@ private fun TransactionCard(
                         text = "Amount",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
-                        color = MutedText
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = formatRupiah(transaction.amount),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Green
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
 
@@ -217,7 +210,7 @@ private fun TransactionCard(
                     text = "Lihat detail",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Purple
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -228,7 +221,7 @@ private fun TransactionCard(
 private fun AuctionInfoSection(transaction: TransactionModel) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFFF9FAFB),
+        color = MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -240,13 +233,13 @@ private fun AuctionInfoSection(transaction: TransactionModel) {
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFEDE9FE)),
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Storefront,
                     contentDescription = null,
-                    tint = Purple
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -258,13 +251,13 @@ private fun AuctionInfoSection(transaction: TransactionModel) {
                     text = "Auction ID / Item",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Medium,
-                    color = MutedText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = transaction.itemTitleOrAuctionId(),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF1F2937),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -281,7 +274,7 @@ private fun TransactionLoadingState() {
     ) {
         Card(
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
@@ -289,17 +282,17 @@ private fun TransactionLoadingState() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                CircularProgressIndicator(color = Purple)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 Text(
                     text = "Memuat transaksi...",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF374151)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "Mohon tunggu sebentar",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = SecondaryText,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
             }

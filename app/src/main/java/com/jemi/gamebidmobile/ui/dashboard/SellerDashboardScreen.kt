@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -31,8 +32,8 @@ fun SellerDashboardScreen(
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor =
-                    MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp
             ) {
 
                 NavigationBarItem(
@@ -52,7 +53,8 @@ fun SellerDashboardScreen(
                     },
                     label = {
                         Text("Auction")
-                    }
+                    },
+                    colors = premiumNavigationBarItemColors()
                 )
 
                 NavigationBarItem(
@@ -72,7 +74,8 @@ fun SellerDashboardScreen(
                     },
                     label = {
                         Text("Penjualan")
-                    }
+                    },
+                    colors = premiumNavigationBarItemColors()
                 )
 
                 NavigationBarItem(
@@ -92,7 +95,8 @@ fun SellerDashboardScreen(
                     },
                     label = {
                         Text("Profile")
-                    }
+                    },
+                    colors = premiumNavigationBarItemColors()
                 )
             }
         }
@@ -143,3 +147,12 @@ fun SellerDashboardScreen(
         }
     }
 }
+
+@Composable
+private fun premiumNavigationBarItemColors() = NavigationBarItemDefaults.colors(
+    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    selectedTextColor = MaterialTheme.colorScheme.primary,
+    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+)
