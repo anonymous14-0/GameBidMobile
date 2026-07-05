@@ -75,4 +75,10 @@ class AuctionRepository {
         RetrofitClient.api.getCategories(
             "Bearer $token"
         )
+    suspend fun getAuctionDetail(
+        auctionId: Int
+    ) =
+        RetrofitClient.api.getAuctionDetail(
+            auctionId
+        )
 }

@@ -10,6 +10,8 @@ import com.jemi.gamebidmobile.data.model.TransactionDetailResponse
 import com.jemi.gamebidmobile.data.model.CreateAuctionRequest
 import com.jemi.gamebidmobile.data.model.ItemResponse
 import com.jemi.gamebidmobile.data.model.CategoryResponse
+import com.jemi.gamebidmobile.data.model.AuctionDetailResponse
+import com.jemi.gamebidmobile.data.model.ProfileResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -101,4 +103,21 @@ interface ApiService {
     suspend fun getCategories(
         @Header("Authorization") token: String
     ): CategoryResponse
+
+    @GET("auctions/{id}")
+    suspend fun getAuctionDetail(
+        @Path("id") auctionId: Int
+    ): AuctionDetailResponse
+
+    @GET("profile")
+    suspend fun getProfile(
+        @Header("Authorization") token: String
+    ): ProfileResponse
+
+    @Multipart
+    @POST("profile/photo")
+    suspend fun uploadProfilePhoto(
+        @Header("Authorization") token: String,
+        @Part photo: MultipartBody.Part
+    )
 }

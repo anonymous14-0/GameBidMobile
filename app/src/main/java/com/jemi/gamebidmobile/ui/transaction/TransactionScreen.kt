@@ -1,23 +1,28 @@
 package com.jemi.gamebidmobile.ui.transaction
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.viewmodel.TransactionViewModel
-import androidx.compose.foundation.clickable
-import androidx.navigation.NavController
+import com.jemi.gamebidmobile.ui.components.TransactionStatusBadge
+import com.jemi.gamebidmobile.ui.components.formatRupiah
+
 @Composable
 fun TransactionScreen(
     navController: NavController,
     viewModel: TransactionViewModel = viewModel()
-){
+) {
     val context = LocalContext.current
 
     val tokenManager = remember {
@@ -34,12 +39,30 @@ fun TransactionScreen(
 
     if (viewModel.transactions.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Belum ada transaksi",
-                modifier = Modifier.padding(16.dp)
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "🧾",
+                    style = MaterialTheme.typography.headlineLarge
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Belum ada transaksi",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Mulai bidding untuk membuat transaksi"
+                )
+            }
         }
     } else {
         LazyColumn(
@@ -57,23 +80,35 @@ fun TransactionScreen(
                                 "transaction_detail/${transaction.id}"
                             )
                         },
-                    elevation = CardDefaults.cardElevation(6.dp)
-                ){
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(10.dp)
+                ) {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
                             text = "Transaksi #${transaction.id}",
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleLarge
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "Auction ID: ${transaction.auction_id}"
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Text("Auction ID: ${transaction.auction_id}")
+                        Text(
+                            text = formatRupiah(transaction.amount),
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
-                        Text("Total: Rp ${transaction.amount}")
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                        Text("Status: ${transaction.status}")
+                        TransactionStatusBadge(
+                            transaction.status
+                        )
                     }
                 }
             }

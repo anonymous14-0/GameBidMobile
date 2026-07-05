@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jemi.gamebidmobile.data.repository.AuthRepository
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class AuthViewModel : ViewModel() {
 
@@ -36,22 +37,41 @@ class AuthViewModel : ViewModel() {
             try {
                 isLoading = true
 
-                val response = repository.login(
-                    email,
-                    password
-                )
+                val response = repository.login(email, password)
+
+                if (response.user.role == "admin") {
+                    loginSuccess = false
+                    loginMessage = "Admin hanya bisa login via web"
+                    return@launch
+                }
 
                 loginMessage = response.message
                 loginSuccess = response.status
                 token = response.token
                 role = response.user.role
-                loginMessage = "Role: ${response.user.role}"
-            } catch (e: Exception) {
-                loginMessage = e.message ?: "Login gagal"
+
+            } catch (e: HttpException) {
                 loginSuccess = false
+
+                loginMessage = when (e.code()) {
+                    401 -> "Email atau password salah"
+                    422 -> "Data login tidak valid"
+                    500 -> "Server error"
+                    else -> "Login gagal"
+                }
+
+            } catch (e: Exception) {
+                loginSuccess = false
+                loginMessage = "Tidak dapat terhubung ke server"
             } finally {
                 isLoading = false
             }
         }
+    }
+    fun resetLoginState() {
+        loginSuccess = false
+        loginMessage = ""
+        token = ""
+        role = ""
     }
 }

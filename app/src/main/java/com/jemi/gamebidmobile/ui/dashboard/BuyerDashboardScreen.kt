@@ -1,50 +1,96 @@
 package com.jemi.gamebidmobile.ui.dashboard
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.*
 import com.jemi.gamebidmobile.navigation.Screen
+import com.jemi.gamebidmobile.ui.auction.AuctionDetailScreen
 import com.jemi.gamebidmobile.ui.auction.AuctionScreen
 import com.jemi.gamebidmobile.ui.profile.ProfileScreen
-import com.jemi.gamebidmobile.ui.transaction.TransactionScreen
-import com.jemi.gamebidmobile.ui.auction.AuctionDetailScreen
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
 import com.jemi.gamebidmobile.ui.transaction.TransactionDetailScreen
-@Composable
-fun BuyerDashboardScreen() {
+import com.jemi.gamebidmobile.ui.transaction.TransactionScreen
 
+@Composable
+fun BuyerDashboardScreen(
+    onLogout: () -> Unit
+) {
     val navController = rememberNavController()
+
+    var selectedIndex by remember {
+        mutableIntStateOf(0)
+    }
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
+            ) {
 
                 NavigationBarItem(
-                    selected = false,
+                    selected = selectedIndex == 0,
                     onClick = {
-                        navController.navigate(Screen.Home.route)
+                        selectedIndex = 0
+                        navController.navigate(Screen.Home.route) {
+                            launchSingleTop = true
+                        }
                     },
-                    icon = {},
-                    label = { Text("Home") }
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home"
+                        )
+                    },
+                    label = {
+                        Text("Home")
+                    }
                 )
 
                 NavigationBarItem(
-                    selected = false,
+                    selected = selectedIndex == 1,
                     onClick = {
-                        navController.navigate(Screen.Transaction.route)
+                        selectedIndex = 1
+                        navController.navigate(
+                            Screen.Transaction.route
+                        ) {
+                            launchSingleTop = true
+                        }
                     },
-                    icon = {},
-                    label = { Text("Transaksi") }
+                    icon = {
+                        Icon(
+                            imageVector =
+                                Icons.Default.ShoppingCart,
+                            contentDescription = "Transaksi"
+                        )
+                    },
+                    label = {
+                        Text("Transaksi")
+                    }
                 )
 
                 NavigationBarItem(
-                    selected = false,
+                    selected = selectedIndex == 2,
                     onClick = {
-                        navController.navigate(Screen.Profile.route)
+                        selectedIndex = 2
+                        navController.navigate(Screen.Profile.route) {
+                            launchSingleTop = true
+                        }
                     },
-                    icon = {},
-                    label = { Text("Profile") }
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile"
+                        )
+                    },
+                    label = {
+                        Text("Profile")
+                    }
                 )
             }
         }
@@ -54,7 +100,7 @@ fun BuyerDashboardScreen() {
             navController = navController,
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(padding)
-        ){
+        ) {
 
             composable(Screen.Home.route) {
                 AuctionScreen(navController)
@@ -65,8 +111,9 @@ fun BuyerDashboardScreen() {
             }
 
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(onLogout)
             }
+
             composable(
                 route = "auction_detail/{auctionId}"
             ) { backStackEntry ->
@@ -78,6 +125,7 @@ fun BuyerDashboardScreen() {
 
                 AuctionDetailScreen(auctionId)
             }
+
             composable(
                 route = Screen.TransactionDetail.route
             ) { backStackEntry ->

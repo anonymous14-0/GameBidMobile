@@ -35,4 +35,11 @@ class TokenManager(context: Context) {
             .clear()
             .apply()
     }
+
+    fun clearToken() {
+        prefs.edit()
+            .remove("token")
+            .remove("role")
+            .apply()
+    }
 }

@@ -61,8 +61,16 @@ class MainActivity : ComponentActivity() {
                         }
                     )
 
-                    AppState.BuyerDashboard -> BuyerDashboardScreen()
-                    AppState.SellerDashboard -> SellerDashboardScreen()
+                    AppState.BuyerDashboard -> BuyerDashboardScreen(
+                        onLogout = {
+                            appState = AppState.Login
+                        }
+                    )
+                    AppState.SellerDashboard -> SellerDashboardScreen(
+                        onLogout = {
+                            appState = AppState.Login
+                        }
+                    )
                 }
             }
         }

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,6 +14,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.utils.uriToFile
 import com.jemi.gamebidmobile.viewmodel.TransactionViewModel
+import com.jemi.gamebidmobile.ui.components.TransactionStatusBadge
+import com.jemi.gamebidmobile.ui.components.formatRupiah
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -23,27 +26,18 @@ fun TransactionDetailScreen(
     viewModel: TransactionViewModel = viewModel()
 ) {
     val context = LocalContext.current
-
-    val tokenManager = remember {
-        TokenManager(context)
-    }
+    val tokenManager = remember { TokenManager(context) }
 
     val token = tokenManager.getToken()
     val role = tokenManager.getRole()
 
     LaunchedEffect(Unit) {
         if (token != null) {
-            viewModel.loadTransactionDetail(
-                token,
-                transactionId
-            )
+            viewModel.loadTransactionDetail(token, transactionId)
         }
     }
 
-    var selectedUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-
+    var selectedUri by remember { mutableStateOf<Uri?>(null) }
     var accountEmail by remember { mutableStateOf("") }
     var accountPassword by remember { mutableStateOf("") }
     var sellerNote by remember { mutableStateOf("") }
@@ -59,44 +53,94 @@ fun TransactionDetailScreen(
         }
 
     if (transaction == null) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Box(Modifier.fillMaxSize()) {
             Text("Loading...")
         }
         return
     }
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Text(
-            text = "Detail Transaksi #$transactionId",
-            style = MaterialTheme.typography.headlineSmall
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // HEADER CARD
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                Text(
+                    text = "Transaksi #$transactionId",
+                    style = MaterialTheme.typography.headlineSmall
+                )
 
-        Text("Status: $transactionStatus")
+                Spacer(modifier = Modifier.height(12.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = formatRupiah(transaction.amount),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TransactionStatusBadge(transactionStatus)
+            }
+        }
 
         when (transactionStatus) {
 
             "pending_payment" -> {
                 if (role == "pembeli") {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                "Instruksi Pembayaran",
+                                style = MaterialTheme.typography.titleMedium
+                            )
 
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Text("Payment")
+                            Text("DANA")
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text("Nomor DANA")
+                            Text(
+                                "081215692885",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text("Atas Nama")
+                            Text("Jemi Gaming")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             launcher.launch("image/*")
                         }
                     ) {
-                        Text("Pilih Gambar")
+                        Text("Pilih Bukti Transfer")
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     Button(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             if (selectedUri != null && token != null) {
 
@@ -139,28 +183,26 @@ fun TransactionDetailScreen(
                     OutlinedTextField(
                         value = accountEmail,
                         onValueChange = { accountEmail = it },
+                        modifier = Modifier.fillMaxWidth(),
                         label = { Text("Email Akun") }
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
                         value = accountPassword,
                         onValueChange = { accountPassword = it },
+                        modifier = Modifier.fillMaxWidth(),
                         label = { Text("Password Akun") }
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
                         value = sellerNote,
                         onValueChange = { sellerNote = it },
+                        modifier = Modifier.fillMaxWidth(),
                         label = { Text("Catatan Seller") }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     Button(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             if (
                                 token != null &&
@@ -188,21 +230,29 @@ fun TransactionDetailScreen(
             "account_sent" -> {
                 if (role == "pembeli") {
 
-                    Text("Akun sudah dikirim seller")
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text("Email :")
+                            Text(transaction.account_email ?: "-")
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                            Text("Password :")
+                            Text(transaction.account_password ?: "-")
 
-                    Text("Email: ${transaction.account_email}")
-                    Text("Password: ${transaction.account_password}")
-
-                    if (!transaction.seller_note.isNullOrEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Catatan: ${transaction.seller_note}")
+                            if (!transaction.seller_note.isNullOrEmpty()) {
+                                Text("Catatan :")
+                                Text(transaction.seller_note!!)
+                            }
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     Button(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             if (token != null) {
                                 viewModel.completeTransaction(
@@ -221,13 +271,23 @@ fun TransactionDetailScreen(
             }
 
             "completed" -> {
-                Text("Transaksi selesai ✅")
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Transaksi selesai ✅",
+                        modifier = Modifier.padding(20.dp)
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        if (viewModel.uploadMessage.isNotEmpty()) {
+            Text(viewModel.uploadMessage)
+        }
 
-        Text(viewModel.uploadMessage)
-        Text(viewModel.accountMessage)
+        if (viewModel.accountMessage.isNotEmpty()) {
+            Text(viewModel.accountMessage)
+        }
     }
 }

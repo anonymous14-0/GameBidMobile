@@ -2,51 +2,97 @@ package com.jemi.gamebidmobile.ui.dashboard
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jemi.gamebidmobile.ui.auction.CreateAuctionScreen
-import com.jemi.gamebidmobile.ui.profile.ProfileScreen
-import com.jemi.gamebidmobile.ui.transaction.TransactionScreen
 import com.jemi.gamebidmobile.ui.item.CreateItemScreen
+import com.jemi.gamebidmobile.ui.profile.ProfileScreen
 import com.jemi.gamebidmobile.ui.transaction.TransactionDetailScreen
-@Composable
-fun SellerDashboardScreen() {
+import com.jemi.gamebidmobile.ui.transaction.TransactionScreen
 
+@Composable
+fun SellerDashboardScreen(
+    onLogout: () -> Unit
+) {
     val navController = rememberNavController()
+
+    var selectedIndex by remember {
+        mutableIntStateOf(0)
+    }
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor =
+                    MaterialTheme.colorScheme.surfaceVariant
+            ) {
 
                 NavigationBarItem(
-                    selected = false,
+                    selected = selectedIndex == 0,
                     onClick = {
-                        navController.navigate("seller_auction")
+                        selectedIndex = 0
+                        navController.navigate("seller_auction") {
+                            launchSingleTop = true
+                            popUpTo("seller_auction")
+                        }
                     },
-                    icon = {},
-                    label = { Text("Auction") }
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.AddBox,
+                            contentDescription = "Auction"
+                        )
+                    },
+                    label = {
+                        Text("Auction")
+                    }
                 )
 
                 NavigationBarItem(
-                    selected = false,
+                    selected = selectedIndex == 1,
                     onClick = {
-                        navController.navigate("seller_sales")
+                        selectedIndex = 1
+                        navController.navigate("seller_sales") {
+                            launchSingleTop = true
+                            popUpTo("seller_auction")
+                        }
                     },
-                    icon = {},
-                    label = { Text("Penjualan") }
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.ShoppingBag,
+                            contentDescription = "Penjualan"
+                        )
+                    },
+                    label = {
+                        Text("Penjualan")
+                    }
                 )
 
                 NavigationBarItem(
-                    selected = false,
+                    selected = selectedIndex == 2,
                     onClick = {
-                        navController.navigate("seller_profile")
+                        selectedIndex = 2
+                        navController.navigate("seller_profile") {
+                            launchSingleTop = true
+                            popUpTo("seller_auction")
+                        }
                     },
-                    icon = {},
-                    label = { Text("Profile") }
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile"
+                        )
+                    },
+                    label = {
+                        Text("Profile")
+                    }
                 )
             }
         }
@@ -69,16 +115,20 @@ fun SellerDashboardScreen() {
                 }
 
                 composable("seller_profile") {
-                    ProfileScreen()
+                    ProfileScreen(onLogout)
                 }
 
                 composable("create_auction") {
                     CreateAuctionScreen()
                 }
+
                 composable("create_item") {
                     CreateItemScreen()
                 }
-                composable("transaction_detail/{transactionId}") { backStackEntry ->
+
+                composable(
+                    "transaction_detail/{transactionId}"
+                ) { backStackEntry ->
 
                     val transactionId =
                         backStackEntry.arguments

@@ -6,28 +6,41 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jemi.gamebidmobile.data.model.AuctionModel
+import com.jemi.gamebidmobile.data.model.CategoryModel
+import com.jemi.gamebidmobile.data.model.ItemModel
 import com.jemi.gamebidmobile.data.repository.AuctionRepository
 import kotlinx.coroutines.launch
-import com.jemi.gamebidmobile.data.model.ItemModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import com.jemi.gamebidmobile.data.model.CategoryModel
+
 class AuctionViewModel : ViewModel() {
 
     private val repository = AuctionRepository()
 
     var auctions by mutableStateOf<List<AuctionModel>>(emptyList())
         private set
+
     var bidMessage by mutableStateOf("")
         private set
+
     var sellerItems by mutableStateOf<List<ItemModel>>(emptyList())
         private set
+
     var createMessage by mutableStateOf("")
         private set
+
     var itemMessage by mutableStateOf("")
         private set
+
     var categories by mutableStateOf<List<CategoryModel>>(emptyList())
         private set
+
+    var selectedAuction by mutableStateOf<AuctionModel?>(null)
+        private set
+
+    var isCreatingItem by mutableStateOf(false)
+        private set
+
     fun submitBid(
         token: String,
         auctionId: Int,
@@ -40,13 +53,16 @@ class AuctionViewModel : ViewModel() {
                     auctionId,
                     bidAmount
                 )
-                loadAuctions() // refresh data
+
+                loadAuctions()
                 bidMessage = "Bid berhasil"
+
             } catch (e: Exception) {
                 bidMessage = "Bid gagal: ${e.message}"
             }
         }
     }
+
     fun loadAuctions() {
         viewModelScope.launch {
             auctions = repository
@@ -62,6 +78,7 @@ class AuctionViewModel : ViewModel() {
                 .data
         }
     }
+
     fun loadSellerItems(token: String) {
         viewModelScope.launch {
             sellerItems = repository
@@ -69,6 +86,7 @@ class AuctionViewModel : ViewModel() {
                 .data
         }
     }
+
     fun createAuction(
         token: String,
         itemId: Int,
@@ -84,13 +102,39 @@ class AuctionViewModel : ViewModel() {
                     endTime
                 )
 
-                loadSellerAuctions(token) // refresh list
+                loadSellerAuctions(token)
                 createMessage = "Auction berhasil dibuat"
+
             } catch (e: Exception) {
                 createMessage = "Gagal: ${e.message}"
             }
         }
     }
+
+    fun loadCategories(token: String) {
+        viewModelScope.launch {
+            categories = repository
+                .getCategories(token)
+                .data
+        }
+    }
+
+    fun loadAuctionDetail(
+        auctionId: Int
+    ) {
+        viewModelScope.launch {
+            try {
+                selectedAuction = repository
+                    .getAuctionDetail(auctionId)
+                    .data
+
+            } catch (e: Exception) {
+                bidMessage =
+                    "Gagal load detail: ${e.message}"
+            }
+        }
+    }
+
     fun createItem(
         token: String,
         title: RequestBody,
@@ -101,6 +145,9 @@ class AuctionViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
+                itemMessage = ""
+                isCreatingItem = true
+
                 repository.createItem(
                     token,
                     title,
@@ -110,18 +157,15 @@ class AuctionViewModel : ViewModel() {
                     image
                 )
 
+                loadSellerItems(token)
+
                 itemMessage = "Item berhasil dibuat"
+
             } catch (e: Exception) {
                 itemMessage = "Gagal: ${e.message}"
+            } finally {
+                isCreatingItem = false
             }
-        }
-    }
-    fun loadCategories(token: String) {
-        viewModelScope.launch {
-            categories =
-                repository
-                    .getCategories(token)
-                    .data
         }
     }
 }

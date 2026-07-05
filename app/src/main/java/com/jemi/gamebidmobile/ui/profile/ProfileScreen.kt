@@ -1,9 +1,155 @@
 package com.jemi.gamebidmobile.ui.profile
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jemi.gamebidmobile.data.local.TokenManager
+import com.jemi.gamebidmobile.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileScreen() {
-    Text("Halaman Profile")
+fun ProfileScreen(
+    onLogout: () -> Unit,
+    viewModel: ProfileViewModel = viewModel()
+) {
+    val context = LocalContext.current
+
+    val tokenManager = remember {
+        TokenManager(context)
+    }
+
+    val token = tokenManager.getToken()
+
+    LaunchedEffect(Unit) {
+        if (token != null) {
+            viewModel.loadProfile(token)
+        }
+    }
+
+    val user = viewModel.user
+    val role = user?.role ?: tokenManager.getRole() ?: "Unknown"
+    val username = user?.name ?: "Loading..."
+    val email = user?.email ?: "-"
+    var showLogoutDialog by remember {
+        mutableStateOf(false)
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = username.firstOrNull()?.uppercase() ?: "U",
+                color = Color.White,
+                fontSize = 40.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = username,
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = role.replaceFirstChar {
+                it.uppercase()
+            }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Email : $email")
+                Text("Role : $role")
+                Text("Version : 1.0")
+                Text("Status : Active")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error
+            ),
+            onClick = {
+                showLogoutDialog = true
+            }
+        ) {
+            Text("Logout")
+        }
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showLogoutDialog = false
+                },
+                title = {
+                    Text("Logout")
+                },
+                text = {
+                    Text("Yakin ingin logout?")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            tokenManager.clearToken()
+                            onLogout()
+                        }
+                    ) {
+                        Text("Logout")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showLogoutDialog = false
+                        }
+                    ) {
+                        Text("Batal")
+                    }
+                }
+            )
+        }
+        if (viewModel.errorMessage.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = viewModel.errorMessage,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
 }
