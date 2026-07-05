@@ -1,3 +1,10 @@
+/*
+ * File: CreateAuctionScreen.kt
+ * Fungsi: Layer UI Jetpack Compose. File ini membangun tampilan, membaca state dari ViewModel, dan mengirim event pengguna ke alur UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ * Peran arsitektur: menjaga pemisahan tanggung jawab antar layer sehingga kode UI, state, penyimpanan lokal, dan komunikasi API tetap mudah dijelaskan saat skripsi/presentasi.
+ * Keterkaitan API: bila file ini tidak memanggil API secara langsung, data tetap mengalir melalui chain UI → ViewModel → Repository → Retrofit API → Laravel Backend.
+ */
+
 package com.jemi.gamebidmobile.ui.auction
 
 import android.app.DatePickerDialog
@@ -19,24 +26,33 @@ import com.jemi.gamebidmobile.ui.components.ErrorState
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
+// Composable ini membangun bagian UI CreateAuctionScreen.
+// Dipanggil oleh flow navigasi/screen terkait; event pengguna diteruskan ke ViewModel atau callback tanpa mengubah logic bisnis di UI.
 @Composable
 fun CreateAuctionScreen(
     viewModel: AuctionViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     val tokenManager = remember {
         TokenManager(context)
     }
 
     val token = tokenManager.getToken()
 
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     var expanded by remember { mutableStateOf(false) }
     var selectedItemId by remember { mutableIntStateOf(0) }
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     var selectedItemTitle by remember { mutableStateOf("") }
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     var startTime by remember { mutableStateOf("") }
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     var endTime by remember { mutableStateOf("") }
+    // State UI: nilai ini disimpan dengan remember/mutableStateOf agar perubahan input pengguna memicu recomposition tanpa menyentuh layer data.
     var localMessage by remember { mutableStateOf("") }
+    // State UI: SnackbarHostState menampung antrean pesan validasi/sukses dari ViewModel agar feedback tampil konsisten.
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
