@@ -46,11 +46,13 @@ fun calculateRemainingTime(endTime: String): String {
 
 fun formatRupiah(value: Number): String {
     val formatter =
-        java.text.NumberFormat.getNumberInstance(
-            java.util.Locale("id", "ID")
+        NumberFormat.getCurrencyInstance(
+            Locale("id", "ID")
         )
 
-    return "Rp ${formatter.format(value)}"
+    formatter.maximumFractionDigits = 0
+
+    return formatter.format(value)
 }
 
 @Composable
@@ -80,7 +82,9 @@ fun StatusBadge(status: String) {
 @Composable
 fun TransactionStatusBadge(status: String) {
     val color = when (status.lowercase()) {
+        "pending",
         "pending_payment" -> Color(0xFFFF9800)
+        "verified",
         "payment_verified" -> Color(0xFF2196F3)
         "account_sent" -> Color(0xFF9C27B0)
         "completed" -> Color(0xFF4CAF50)
