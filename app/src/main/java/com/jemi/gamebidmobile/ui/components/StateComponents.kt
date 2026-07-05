@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -96,7 +95,7 @@ private fun ModernStateCard(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
             Column(
@@ -111,9 +110,9 @@ private fun ModernStateCard(
                         .background(
                             Brush.linearGradient(
                                 colors = if (isError) {
-                                    listOf(Color(0xFFFEE2E2), Color(0xFFF5D0FE))
+                                    listOf(MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.secondaryContainer)
                                 } else {
-                                    listOf(Color(0xFFEDE9FE), Color(0xFFDDD6FE))
+                                    listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer)
                                 }
                             )
                         ),
@@ -123,7 +122,7 @@ private fun ModernStateCard(
                         imageVector = icon,
                         contentDescription = null,
                         modifier = Modifier.size(36.dp),
-                        tint = if (isError) Color(0xFFDC2626) else MaterialTheme.colorScheme.primary
+                        tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -133,14 +132,14 @@ private fun ModernStateCard(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF111827),
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
 
@@ -190,7 +189,7 @@ fun ConfirmActionDialog(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF6B7280)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         confirmButton = {
