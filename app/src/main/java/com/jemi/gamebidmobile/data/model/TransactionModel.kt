@@ -7,8 +7,8 @@ data class TransactionModel(
     val amount: Double,
     val status: String,
     val payment_proof: String?,
-
     val account_email: String?,
     val account_password: String?,
-    val seller_note: String?
+    val seller_note: String?,
+    val auction: AuctionModel? = null
 )

@@ -48,6 +48,13 @@ import com.jemi.gamebidmobile.ui.components.TransactionStatusBadge
 import com.jemi.gamebidmobile.ui.components.formatRupiah
 import com.jemi.gamebidmobile.viewmodel.TransactionViewModel
 
+private val ScreenBackground = Color(0xFFF6F7FB)
+private val PrimaryText = Color(0xFF111827)
+private val SecondaryText = Color(0xFF6B7280)
+private val MutedText = Color(0xFF9CA3AF)
+private val Purple = Color(0xFF7C3AED)
+private val Green = Color(0xFF059669)
+
 @Composable
 fun TransactionScreen(
     navController: NavController,
@@ -58,14 +65,12 @@ fun TransactionScreen(
     val token = tokenManager.getToken()
 
     LaunchedEffect(token) {
-        if (token != null) {
-            viewModel.loadTransactions(token)
-        }
+        token?.let { viewModel.loadTransactions(it) }
     }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF7F8FC)
+        color = ScreenBackground
     ) {
         when {
             viewModel.isLoading -> TransactionLoadingState()
@@ -91,7 +96,7 @@ private fun TransactionList(
             start = 20.dp,
             top = 24.dp,
             end = 20.dp,
-            bottom = 24.dp
+            bottom = 28.dp
         ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -116,19 +121,19 @@ private fun TransactionHeader(totalTransactions: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 4.dp)
+            .padding(bottom = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = "Penjualan Seller",
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF111827)
+            fontWeight = FontWeight.ExtraBold,
+            color = PrimaryText
         )
-        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "$totalTransactions transaksi penjualan terbaru",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF6B7280)
+            color = SecondaryText
         )
     }
 }
@@ -144,7 +149,7 @@ private fun TransactionCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
@@ -152,7 +157,7 @@ private fun TransactionCard(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 Column(
@@ -162,75 +167,96 @@ private fun TransactionCard(
                     Text(
                         text = "Transaction ID",
                         style = MaterialTheme.typography.labelMedium,
-                        color = Color(0xFF9CA3AF)
+                        fontWeight = FontWeight.Medium,
+                        color = MutedText
                     )
                     Text(
                         text = "#${transaction.id}",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF111827)
+                        fontWeight = FontWeight.ExtraBold,
+                        color = PrimaryText
                     )
                 }
 
                 TransactionStatusBadge(status = transaction.status)
             }
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFFF9FAFB),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(14.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(42.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFEDE9FE)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Storefront,
-                            contentDescription = null,
-                            tint = Color(0xFF7C3AED)
-                        )
-                    }
+            AuctionInfoSection(transaction = transaction)
 
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "Auction ID / Item",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFF9CA3AF)
-                        )
-                        Text(
-                            text = "Auction #${transaction.auction_id}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF1F2937),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = "Amount",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MutedText
+                    )
+                    Text(
+                        text = formatRupiah(transaction.amount),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Green
+                    )
                 }
+
+                Text(
+                    text = "Lihat detail",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Purple
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AuctionInfoSection(transaction: TransactionModel) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Color(0xFFF9FAFB),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFEDE9FE)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Storefront,
+                    contentDescription = null,
+                    tint = Purple
+                )
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(
-                    text = "Amount",
+                    text = "Auction ID / Item",
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color(0xFF9CA3AF)
+                    fontWeight = FontWeight.Medium,
+                    color = MutedText
                 )
                 Text(
-                    text = formatRupiah(transaction.amount),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF059669)
+                    text = transaction.itemTitleOrAuctionId(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF1F2937),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -243,17 +269,30 @@ private fun TransactionLoadingState() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            CircularProgressIndicator(color = Color(0xFF7C3AED))
-            Text(
-                text = "Memuat transaksi...",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF374151)
-            )
+            Column(
+                modifier = Modifier.padding(horizontal = 28.dp, vertical = 30.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                CircularProgressIndicator(color = Purple)
+                Text(
+                    text = "Memuat transaksi...",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF374151)
+                )
+                Text(
+                    text = "Mohon tunggu sebentar",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = SecondaryText,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -273,22 +312,17 @@ private fun TransactionEmptyState() {
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
             Column(
-                modifier = Modifier.padding(
-                    horizontal = 24.dp,
-                    vertical = 32.dp
-                ),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 34.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(76.dp)
+                        .size(78.dp)
                         .clip(CircleShape)
                         .background(
                             Brush.linearGradient(
-                                colors = listOf(
-                                    Color(0xFF8B5CF6),
-                                    Color(0xFF6366F1)
-                                )
+                                colors = listOf(Color(0xFF8B5CF6), Color(0xFF6366F1))
                             )
                         ),
                     contentAlignment = Alignment.Center
@@ -301,25 +335,32 @@ private fun TransactionEmptyState() {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = "Belum ada transaksi",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF111827),
+                    fontWeight = FontWeight.ExtraBold,
+                    color = PrimaryText,
                     textAlign = TextAlign.Center
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "Transaksi penjualan dari auction yang berhasil akan tampil di sini.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF6B7280),
+                    color = SecondaryText,
                     textAlign = TextAlign.Center
                 )
             }
         }
+    }
+}
+
+private fun TransactionModel.itemTitleOrAuctionId(): String {
+    val itemTitle = auction?.item?.title
+    return if (itemTitle.isNullOrBlank()) {
+        "Auction #$auction_id"
+    } else {
+        itemTitle
     }
 }

@@ -88,7 +88,7 @@ fun TransactionStatusBadge(status: String) {
         "payment_verified" -> Color(0xFF2196F3)
         "account_sent" -> Color(0xFF9C27B0)
         "completed" -> Color(0xFF4CAF50)
-        else -> Color.Gray
+        else -> Color(0xFF6B7280)
     }
 
     Surface(
@@ -97,10 +97,11 @@ fun TransactionStatusBadge(status: String) {
     ) {
         Text(
             text = status.replace("_", " ").uppercase(),
+            style = MaterialTheme.typography.labelSmall,
             color = Color.White,
             modifier = Modifier.padding(
                 horizontal = 12.dp,
-                vertical = 6.dp
+                vertical = 7.dp
             )
         )
     }
