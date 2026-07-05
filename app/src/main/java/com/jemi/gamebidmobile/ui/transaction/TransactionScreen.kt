@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +43,8 @@ import androidx.navigation.NavController
 import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.data.model.TransactionModel
 import com.jemi.gamebidmobile.ui.components.TransactionStatusBadge
+import com.jemi.gamebidmobile.ui.components.EmptyState
+import com.jemi.gamebidmobile.ui.components.ErrorState
 import com.jemi.gamebidmobile.ui.components.formatRupiah
 import com.jemi.gamebidmobile.viewmodel.TransactionViewModel
 
@@ -74,7 +74,17 @@ fun TransactionScreen(
     ) {
         when {
             viewModel.isLoading -> TransactionLoadingState()
-            viewModel.transactions.isEmpty() -> TransactionEmptyState()
+            viewModel.loadErrorMessage.isNotEmpty() -> ErrorState(
+                subtitle = "Transaksi gagal dimuat. Periksa koneksi internet atau coba beberapa saat lagi.",
+                onActionClick = { token?.let { viewModel.loadTransactions(it) } }
+            )
+            viewModel.transactions.isEmpty() -> EmptyState(
+                icon = Icons.Outlined.ReceiptLong,
+                title = "Belum ada transaksi",
+                subtitle = "Transaksi penjualan dari auction yang berhasil akan tampil di sini.",
+                actionLabel = "Refresh",
+                onActionClick = { token?.let { viewModel.loadTransactions(it) } }
+            )
             else -> TransactionList(
                 transactions = viewModel.transactions,
                 onTransactionClick = { transactionId ->
@@ -288,65 +298,6 @@ private fun TransactionLoadingState() {
                 )
                 Text(
                     text = "Mohon tunggu sebentar",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = SecondaryText,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun TransactionEmptyState() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 34.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(78.dp)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(Color(0xFF8B5CF6), Color(0xFF6366F1))
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ReceiptLong,
-                        contentDescription = null,
-                        modifier = Modifier.size(36.dp),
-                        tint = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Belum ada transaksi",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = PrimaryText,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    text = "Transaksi penjualan dari auction yang berhasil akan tampil di sini.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = SecondaryText,
                     textAlign = TextAlign.Center

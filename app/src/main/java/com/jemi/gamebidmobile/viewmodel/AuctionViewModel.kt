@@ -20,6 +20,12 @@ class AuctionViewModel : ViewModel() {
     var auctions by mutableStateOf<List<AuctionModel>>(emptyList())
         private set
 
+    var loadErrorMessage by mutableStateOf("")
+        private set
+
+    var isLoading by mutableStateOf(false)
+        private set
+
     var bidMessage by mutableStateOf("")
         private set
 
@@ -65,25 +71,45 @@ class AuctionViewModel : ViewModel() {
 
     fun loadAuctions() {
         viewModelScope.launch {
-            auctions = repository
-                .getAuctions()
-                .data
+            isLoading = true
+            loadErrorMessage = ""
+            try {
+                auctions = repository
+                    .getAuctions()
+                    .data
+            } catch (e: Exception) {
+                loadErrorMessage = "Network error: ${e.message}"
+            } finally {
+                isLoading = false
+            }
         }
     }
 
     fun loadSellerAuctions(token: String) {
         viewModelScope.launch {
-            auctions = repository
-                .getSellerAuctions(token)
-                .data
+            isLoading = true
+            loadErrorMessage = ""
+            try {
+                auctions = repository
+                    .getSellerAuctions(token)
+                    .data
+            } catch (e: Exception) {
+                loadErrorMessage = "Gagal load auction: ${e.message}"
+            } finally {
+                isLoading = false
+            }
         }
     }
 
     fun loadSellerItems(token: String) {
         viewModelScope.launch {
-            sellerItems = repository
-                .getSellerItems(token)
-                .data
+            try {
+                sellerItems = repository
+                    .getSellerItems(token)
+                    .data
+            } catch (e: Exception) {
+                loadErrorMessage = "Gagal load item: ${e.message}"
+            }
         }
     }
 
@@ -123,14 +149,17 @@ class AuctionViewModel : ViewModel() {
         auctionId: Int
     ) {
         viewModelScope.launch {
+            isLoading = true
+            loadErrorMessage = ""
             try {
                 selectedAuction = repository
                     .getAuctionDetail(auctionId)
                     .data
 
             } catch (e: Exception) {
-                bidMessage =
-                    "Gagal load detail: ${e.message}"
+                loadErrorMessage = "Gagal load detail: ${e.message}"
+            } finally {
+                isLoading = false
             }
         }
     }
