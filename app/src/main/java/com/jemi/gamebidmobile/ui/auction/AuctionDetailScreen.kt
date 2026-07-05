@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import com.jemi.gamebidmobile.ui.components.calculateRemainingTime
 import com.jemi.gamebidmobile.ui.components.formatRupiah
 import com.jemi.gamebidmobile.ui.components.StatusBadge
+import com.jemi.gamebidmobile.ui.components.ErrorState
 
 @Composable
 fun AuctionDetailScreen(
@@ -45,10 +46,19 @@ fun AuctionDetailScreen(
     val auction = viewModel.selectedAuction
 
     if (auction == null) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text("Loading...")
+        if (viewModel.loadErrorMessage.isNotEmpty()) {
+            ErrorState(
+                title = "Detail auction gagal dimuat",
+                subtitle = "Kami belum bisa menampilkan detail auction ini. Coba muat ulang halaman.",
+                onActionClick = { viewModel.loadAuctionDetail(auctionId) }
+            )
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
         }
         return
     }

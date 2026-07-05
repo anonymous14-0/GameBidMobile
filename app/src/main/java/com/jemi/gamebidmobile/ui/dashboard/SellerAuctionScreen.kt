@@ -16,7 +16,10 @@ import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.viewmodel.AuctionViewModel
 import com.jemi.gamebidmobile.ui.components.StatusBadge
 import com.jemi.gamebidmobile.ui.components.formatRupiah
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Gavel
+import com.jemi.gamebidmobile.ui.components.EmptyState
+import com.jemi.gamebidmobile.ui.components.ErrorState
 
 @Composable
 fun SellerAuctionScreen(
@@ -74,31 +77,19 @@ fun SellerAuctionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (viewModel.auctions.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "📦",
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "Belum ada auction",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text("Buat item atau auction baru")
-                }
-            }
+        if (viewModel.loadErrorMessage.isNotEmpty()) {
+            ErrorState(
+                subtitle = "Auction seller gagal dimuat. Pastikan koneksi stabil dan coba lagi.",
+                onActionClick = { token?.let { viewModel.loadSellerAuctions(it) } }
+            )
+        } else if (viewModel.auctions.isEmpty() && !viewModel.isLoading) {
+            EmptyState(
+                icon = Icons.Outlined.Gavel,
+                title = "Belum ada auction",
+                subtitle = "Buat item terlebih dahulu, lalu mulai auction agar buyer bisa ikut bid.",
+                actionLabel = "Buat Auction",
+                onActionClick = { navController.navigate("create_auction") }
+            )
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

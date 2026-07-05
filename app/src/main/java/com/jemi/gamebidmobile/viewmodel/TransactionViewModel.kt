@@ -17,6 +17,8 @@ class TransactionViewModel : ViewModel() {
         private set
     var uploadMessage by mutableStateOf("")
         private set
+    var loadErrorMessage by mutableStateOf("")
+        private set
     var accountMessage by mutableStateOf("")
         private set
     var selectedTransaction by mutableStateOf<TransactionModel?>(null)
@@ -44,13 +46,14 @@ class TransactionViewModel : ViewModel() {
     fun loadTransactions(token: String) {
         viewModelScope.launch {
             isLoading = true
+            loadErrorMessage = ""
             try {
                 transactions =
                     repository
                         .getTransactions(token)
                         .data
             } catch (e: Exception) {
-                uploadMessage =
+                loadErrorMessage =
                     "Gagal load transaksi: ${e.message}"
             } finally {
                 isLoading = false

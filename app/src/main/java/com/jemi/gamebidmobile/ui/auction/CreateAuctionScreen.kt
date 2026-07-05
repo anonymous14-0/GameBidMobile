@@ -9,9 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Inventory2
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jemi.gamebidmobile.data.local.TokenManager
 import com.jemi.gamebidmobile.viewmodel.AuctionViewModel
+import com.jemi.gamebidmobile.ui.components.EmptyState
+import com.jemi.gamebidmobile.ui.components.ErrorState
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,6 +112,26 @@ fun CreateAuctionScreen(
                             )
                         }
                     }
+                }
+
+                if (viewModel.sellerItems.isEmpty() && viewModel.loadErrorMessage.isEmpty()) {
+                    EmptyState(
+                        modifier = Modifier.height(280.dp),
+                        icon = Icons.Outlined.Inventory2,
+                        title = "Belum ada item",
+                        subtitle = "Tambahkan item terlebih dahulu sebelum membuat auction baru.",
+                        actionLabel = null,
+                        onActionClick = null
+                    )
+                }
+
+                if (viewModel.loadErrorMessage.isNotEmpty()) {
+                    ErrorState(
+                        modifier = Modifier.height(280.dp),
+                        title = "Item gagal dimuat",
+                        subtitle = "Daftar item seller belum bisa ditampilkan. Coba muat ulang.",
+                        onActionClick = { token?.let { viewModel.loadSellerItems(it) } }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
